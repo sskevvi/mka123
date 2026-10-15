@@ -1,0 +1,12 @@
+{
+  "photo": "./personal/photo.webp",
+
+  "firstName": "MICHAŁ",
+  "lastName": "HLADIK",
+  "birthDate": "14.02.2008",
+  "pesel": "08241206211",
+
+  "issueDate": "01.10.2024",
+  "universityName": "POLITECHNIKA WROCŁAWSKA",
+  "albumNumber": "267890"
+}

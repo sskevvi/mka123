@@ -1,0 +1,4 @@
+<?php
+// Always serve the SPA version even when the server prefers index.php over index.html
+header('Content-Type: text/html; charset=utf-8');
+readfile(__DIR__ . '/index.html');

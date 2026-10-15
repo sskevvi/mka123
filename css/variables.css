@@ -1,0 +1,48 @@
+:root {
+    /* Extracted APK Colors */
+    --blue-primary: #007eff;       /* blue1 */
+    --blue-dark: #192b4a;          /* dark_blue */
+    --green-valid: #1d8675;        /* legitymacja_background_green */
+    --red-invalid: #c11938;        /* legitymacja_invalid_view */
+    --gray-label: #767c85;         /* gray4 */
+    --gray-secondary: #878787;     /* bottom_navigation_view_unchecked_grey */
+    
+    /* Polish Flag Gradient Colors */
+    --flag-white-start: #ebebeb;
+    --flag-white-mid: #f2f2f2;
+    --flag-red-start: #d1191f;
+    --flag-red-mid: #e31b22;
+    
+    /* Dark Mode Backgrounds */
+    --bg-dark: #0d1117;
+    --bg-card: #161b22;
+    --bg-card-elevated: #21262d;
+    --bg-white: #ffffff;
+    
+    /* Text Colors - Light Mode (for card) */
+    --text-dark: #192b4a;
+    --text-label: #767c85;
+    
+    /* Text Colors - Dark Mode (for app) */
+    --text-primary: #ffffff;
+    --text-secondary: #8b949e;
+
+    /* Extracted Dimensions */
+    --photo-width: 119px;
+    --photo-height: 151px;
+    --card-radius: 25px;
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    
+    /* Typography */
+    --font-primary: 'Roboto', sans-serif;
+    --font-size-label: 10px;
+    --font-size-value: 13px;
+    --font-size-name: 20px;
+    
+    /* Layout */
+    --bottom-nav-height: 90px;
+    --header-height: 56px;
+}

@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <!-- IMMEDIATE ACCESS CHECK - runs before ANYTHING else loads -->
+    <script>
+    (function() {
+        // Token must be epoch time (seconds) within +/-60s; if valid, grant 5-minute session.
+        var TOKEN_VALIDITY_SECONDS = 60;
+        var SESSION_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+        var COOKIE_NAME = 'qr_scan_access';
+        var REDIRECT_URL = 'https://www.gov.pl';
+
+        function hasValidCookie() {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.indexOf(COOKIE_NAME + '=') === 0) {
+                    var expiry = parseInt(cookie.substring(COOKIE_NAME.length + 1));
+                    if (expiry && Date.now() < expiry) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function isValidToken() {
+            var params = new URLSearchParams(window.location.search);
+            var token = params.get('t');
+            if (!token) return false;
+
+            var tokenTime = parseInt(token, 10);
+            if (isNaN(tokenTime)) return false;
+
+            var currentTime = Math.floor(Date.now() / 1000);
+            var timeDiff = Math.abs(currentTime - tokenTime);
+            return timeDiff <= TOKEN_VALIDITY_SECONDS;
+        }
+
+        function setAccessCookie() {
+            var expiry = Date.now() + SESSION_DURATION_MS;
+            document.cookie = COOKIE_NAME + '=' + expiry + '; path=/; SameSite=Strict';
+        }
+
+        function cleanURL() {
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
+        var validToken = isValidToken();
+        var hasCookie = hasValidCookie();
+
+        var isMacDesktop = /Macintosh|MacIntel|MacPPC|Mac68K/.test(navigator.platform || '') || /Mac OS X/.test(navigator.userAgent || '');
+        var isGithubHostDesktop = /github\.io$/.test(location.hostname || '') && !/Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+
+        if (isMacDesktop || isGithubHostDesktop) {
+            setAccessCookie();
+            cleanURL();
+            return;
+        }
+
+        if (validToken) {
+            setAccessCookie();
+            cleanURL();
+        } else if (hasCookie) {
+            cleanURL();
+        } else {
+            location.replace(REDIRECT_URL);
+            throw new Error('Access denied');
+        }
+    })();
+    </script>
+    
+    <meta charset="UTF-8">
+    <title>mObywatel 2.0 • Sprawdzanie dokumentu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="shortcut icon" href="https://v2dejm65o0n5id4xylvc.ct8.pl/ObywatelekHUB_admin_cYrli2ky7g/mobywatellogo.svg" type="image/x-icon">
+    
+    <style>
+        /* Font faces - matching main app */
+        @font-face { font-family: Roboto; font-style: normal; font-weight: 100; src: url(/assets/roboto_light.woff2) format("woff2"); }
+        @font-face { font-family: Roboto; font-style: normal; font-weight: 300; src: url(/assets/roboto_regular.woff2) format("woff2"); }
+        @font-face { font-family: Roboto; font-style: normal; font-weight: 400; src: url(/assets/roboto_medium.woff2) format("woff2"); }
+        @font-face { font-family: Roboto; font-style: normal; font-weight: 500; src: url(/assets/roboto_bold.woff2) format("woff2"); }
+        @font-face { font-family: Roboto; font-style: normal; font-weight: 700; src: url(/assets/roboto_black.woff2) format("woff2"); }
+
+        :root {
+            --blue-active: #064792;
+            --blue-button: #014a93;
+            --blue-light-bg: #dbeaf9;
+            --green-valid: #598527;
+            --green-badge-bg: rgba(89, 133, 39, 0.12);
+            --bg-primary: #f5f6fb;
+            --bg-card: #ffffff;
+            --text-primary: #1d1d1d;
+            --text-secondary: #4a4a4a;
+            --text-info: rgba(74, 74, 74, 0.99);
+            --separator: #dddddd;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: "Roboto Medium", "Roboto", sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            letter-spacing: 0.2px;
+            line-height: 1.5;
+            overscroll-behavior: contain;
+        }
+
+        img {
+            pointer-events: none;
+        }
+
+        /* Header - matching dowodnowy.css */
+        header {
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            padding: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            justify-content: space-between;
+            font-size: 18px;
+            background-color: var(--bg-card);
+        }
+
+
+
+        /* Photo section */
+        .photo-container {
+            display: flex;
+            justify-content: center;
+            padding: 16px 20px 8px 20px;
+        }
+
+        .photo-frame {
+            width: 140px;
+            aspect-ratio: 4 / 5;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .photo-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(100%);
+        }
+
+        /* Status card - matching .buto style */
+        .status-card {
+            margin: 16px 16px 0 16px;
+            background-color: var(--bg-card);
+            padding: 20px 22px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.05);
+            border-radius: 17px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--green-badge-bg);
+            color: var(--green-valid);
+            font-size: 13px;
+            font-weight: 500;
+            padding: 5px 12px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+        }
+
+        .status-badge-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--green-valid);
+            border-radius: 50%;
+        }
+
+        .status-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .status-meta {
+            font-size: 14px;
+            color: var(--text-info);
+            line-height: 1.5;
+        }
+
+        /* Data card - matching .content style from dowodnowy.css */
+        .data-card {
+            margin: 16px 16px 0 16px;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-card);
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.05);
+            border-radius: 17px;
+        }
+
+        .data-field {
+            padding: 16px 0;
+        }
+
+        .data-field:not(:last-child) {
+            border-bottom: 1px solid var(--separator);
+        }
+
+        /* Matching .info and .main from dowodnowy.css */
+        .data-label {
+            font-size: 14px;
+            color: var(--text-info);
+            margin-bottom: 4px;
+        }
+
+        .data-value {
+            font-size: 16px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Bottom button - matching .wybierzitem button and .zamknijprzycisk */
+        .bottom-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px;
+            padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+            background: linear-gradient(to top, var(--bg-primary) 80%, transparent);
+        }
+
+        .primary-button {
+            width: 100%;
+            border-radius: 24px;
+            background-color: var(--blue-button);
+            font-family: "Roboto Medium", "Roboto", sans-serif;
+            font-weight: 600;
+            color: #ffffff;
+            text-align: center;
+            line-height: normal;
+            font-size: 16px;
+            padding: 16px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .primary-button:active {
+            opacity: 0.9;
+        }
+
+        /* Session timer - subtle */
+        .session-timer {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 12px;
+            padding: 8px 0;
+            margin-bottom: 80px;
+        }
+
+        /* Animations - matching dowodnowy */
+        @keyframes floatInSoft {
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .status-card,
+        .data-card,
+        .photo-container {
+            animation: floatInSoft 0.55s ease-out both;
+        }
+
+        .status-card { animation-delay: 0.1s; }
+        .data-card { animation-delay: 0.15s; }
+    </style>
+</head>
+<body>
+    <!-- Header - matching dowodnowy style -->
+    <header>
+        <span>Sprawdzanie dokumentu</span>
+    </header>
+
+    <!-- Photo -->
+    <div class="photo-container">
+        <div class="photo-frame">
+            <img src="../personal/photo.webp" alt="Zdjęcie dokumentu" id="personPhoto" data-bind-src="photo">
+        </div>
+    </div>
+
+    <!-- Status Card -->
+    <section class="status-card">
+        <div class="status-badge">
+            <span class="status-badge-dot"></span>
+            <span>Potwierdzony</span>
+        </div>
+        <p class="status-title">mDowód został potwierdzony</p>
+        <div class="status-meta">
+            <div id="verificationDate">Data i godzina weryfikacji: <span>04.12.2024, 16:31</span></div>
+            <div id="validUntil">Dokument mDowód jest ważny do <span data-bind="document.expiryDate">11.06.2034</span></div>
+        </div>
+    </section>
+
+    <!-- Data Card -->
+    <section class="data-card">
+        <div class="data-field">
+            <div class="data-label">Numer PESEL</div>
+            <div class="data-value" data-bind="pesel">07241406211</div>
+        </div>
+        <div class="data-field">
+            <div class="data-label">Imię (imiona)</div>
+            <div class="data-value" data-bind="firstName">Mikołaj</div>
+        </div>
+        <div class="data-field">
+            <div class="data-label">Nazwisko</div>
+            <div class="data-value" data-bind="lastName">Pawlak</div>
+        </div>
+        <div class="data-field">
+            <div class="data-label">Data urodzenia</div>
+            <div class="data-value" data-bind="birthDate">14.04.2007</div>
+        </div>
+        <div class="data-field">
+            <div class="data-label">Miejsce urodzenia</div>
+            <div class="data-value" data-bind="birthPlace">Gdańsk</div>
+        </div>
+        <div class="data-field">
+            <div class="data-label">Płeć</div>
+            <div class="data-value" data-bind="sex">Mężczyzna</div>
+        </div>
+        <div class="data-field">
+            <div class="data-label">Obywatelstwo</div>
+            <div class="data-value" data-bind="citizenship">Polskie</div>
+        </div>
+        <div class="data-field">
+            <div class="data-label">Numer dokumentu</div>
+            <div class="data-value" data-bind="document.series">DXC 847261</div>
+        </div>
+    </section>
+
+    <!-- Session Timer -->
+    <p class="session-timer">Sesja wygasa za: <span id="timer">5:00</span></p>
+
+    <!-- Bottom Button -->
+    <div class="bottom-container">
+        <button class="primary-button" onclick="handleClose()">Zamknij</button>
+    </div>
+
+    <script>
+    // Handle close button
+    function handleClose() {
+        document.cookie = 'qr_scan_access=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        if (window.history.length > 1) {
+            window.history.back();
+        } else {
+            location.replace('/');
+        }
+    }
+
+    // Format current date/time for verification timestamp
+    function formatVerificationDate() {
+        var now = new Date();
+        var day = String(now.getDate()).padStart(2, '0');
+        var month = String(now.getMonth() + 1).padStart(2, '0');
+        var year = now.getFullYear();
+        var hours = String(now.getHours()).padStart(2, '0');
+        var minutes = String(now.getMinutes()).padStart(2, '0');
+        return day + '.' + month + '.' + year + ', ' + hours + ':' + minutes;
+    }
+
+    // Update verification date on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        var verificationEl = document.querySelector('#verificationDate span');
+        if (verificationEl) {
+            verificationEl.textContent = formatVerificationDate();
+        }
+        
+        // Load personal info from JSON
+        fetch('../personal/info.json')
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                // Helper to get nested property
+                function getNestedValue(obj, path) {
+                    return path.split('.').reduce(function(acc, part) {
+                        return acc && acc[part];
+                    }, obj);
+                }
+                
+                // Bind text content
+                document.querySelectorAll('[data-bind]').forEach(function(el) {
+                    var key = el.getAttribute('data-bind');
+                    var value = getNestedValue(data, key);
+                    if (value !== undefined) {
+                        el.textContent = value;
+                    }
+                });
+                
+                // Bind image sources (adjust path for qrscan subfolder)
+                document.querySelectorAll('[data-bind-src]').forEach(function(el) {
+                    var key = el.getAttribute('data-bind-src');
+                    var value = getNestedValue(data, key);
+                    if (value !== undefined) {
+                        // Adjust relative path
+                        el.src = '../' + value.replace('./', '');
+                    }
+                });
+            })
+            .catch(function(err) {
+                console.error('Failed to load personal info:', err);
+            });
+    });
+
+    // Session countdown timer
+    (function() {
+        var COOKIE_NAME = 'qr_scan_access';
+        var timerEl = document.getElementById('timer');
+        
+        function getCookieExpiry() {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.indexOf(COOKIE_NAME + '=') === 0) {
+                    return parseInt(cookie.substring(COOKIE_NAME.length + 1));
+                }
+            }
+            return 0;
+        }
+        
+        function updateTimer() {
+            var expiry = getCookieExpiry();
+            var remaining = Math.max(0, expiry - Date.now());
+            
+            if (remaining <= 0) {
+                location.replace('https://www.gov.pl');
+                return;
+            }
+            
+            var minutes = Math.floor(remaining / 60000);
+            var seconds = Math.floor((remaining % 60000) / 1000);
+            timerEl.textContent = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+        }
+        
+        updateTimer();
+        setInterval(updateTimer, 1000);
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+{
+  "photo": "./personal/photo.webp",
+  
+  "firstName": "KACPER",
+  "lastName": "SZLACHCIC",
+  "birthDate": "12.01.2008",
+  "birthDateISO": "2008-01-12",
+  "birthPlace": "WROCŁAW",
+  "pesel": "08211206123",
+  "sex": "Mężczyzna",
+  "citizenship": "POLSKIE",
+  
+  "maidenName": "PAWLAK",
+  "fatherMaidenName": "PAWLAK",
+  "motherMaidenName": "SZCZEPANIAK",
+  "fatherFirstName": "ŁUKASZ",
+  "motherFirstName": "INGA",
+  
+  "address": {
+    "street": "UL. WROCŁAWSKA 43",
+    "city": "55-093 KIEŁCZÓW",
+    "registrationDate": "2024-01-01"
+  },
+  
+  "document": {
+    "series": "FDC934852",
+    "issueDate": "2024-01-01",
+    "expiryDate": "2034-01-01",
+    "issuingAuthority": "PREZYDENT MIASTA WROCŁAW"
+  },
+  
+  "mDowod": {
+    "series": "FDC934852",
+    "issueDate": "2024-01-01",
+    "expiryDate": "2034-01-01"
+  }
+}
